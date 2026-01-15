@@ -1,25 +1,18 @@
 {
-  "name": "volcano-monitoring-backend",
+  "name": "volcano-backend",
   "version": "1.0.0",
-  "description": "Backend API pour le monitoring volcanique en temps réel",
-  "main": "server.js",
+  "type": "commonjs",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
   },
-  "keywords": ["volcano", "monitoring", "api"],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^8.0.3",
+    "axios": "^1.13.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "ws": "^8.14.2",
-    "express-ws": "^5.0.2",
-    "axios": "^1.6.2"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.6.0",
+    "zod": "^3.23.8"
   }
 }

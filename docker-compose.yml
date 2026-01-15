@@ -1,68 +1,40 @@
 services:
   mongodb:
-    image: mongo:7.0
+    image: mongo:7
     container_name: volcano_mongodb
     restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
-      - mongodb_data:/data/db
-      - mongodb_config:/data/configdb
-    environment:
-      MONGO_INITDB_DATABASE: volcano_monitoring
-    networks:
-      - volcano_network
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/volcano_monitoring --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - mongo_data:/data/db
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    build: ./backend
     container_name: volcano_backend
     restart: unless-stopped
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/volcano_dashboard
+      - PORT=3000
+      - DEFAULT_RADIUS_KM=25
+      - DEFAULT_MIN_MAG=0.0
+      - 'USER_AGENT=volcano-dashboard/1.0 (contact: louisbarthes1@gmail.com)'
+      - VOLCANO_SEED_URL=https://volcanoes.usgs.gov/vsc/api/volcanoApi/volcanoesGVP
+    depends_on:
+      - mongodb
     ports:
       - "3000:3000"
-    environment:
-      PORT: 3000
-      MONGODB_URI: mongodb://mongodb:27017/volcano_monitoring
-      NODE_ENV: production
-      SYNC_INTERVAL: ${SYNC_INTERVAL:-3600000}
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    networks:
-      - volcano_network
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    build: ./frontend
     container_name: volcano_frontend
     restart: unless-stopped
-    ports:
-      - "8501:8501"
     environment:
-      API_BASE_URL: http://backend:3000
+      - BACKEND_BASE_URL=http://backend:3000
+      - MAPBOX_API_KEY=ta_cle
     depends_on:
       - backend
-    networks:
-      - volcano_network
-    volumes:
-      - ./frontend:/app
-
-networks:
-  volcano_network:
-    driver: bridge
+    ports:
+      - "8501:8501"
 
 volumes:
-  mongodb_data:
-    driver: local
-  mongodb_config:
-    driver: local
+  mongo_data:
